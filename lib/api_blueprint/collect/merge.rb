@@ -91,9 +91,7 @@ class ApiBlueprint::Collect::Merge
   end
 
   def requests
-    selector = Rails.root.join('tmp', 'blueprint_request_*.yml').to_s
-
-    Dir[selector].collect do |file|
+    ApiBlueprint::Collect::Storage.request_dumps.collect do |file|
       YAML::load_file(file)
     end.uniq
   end

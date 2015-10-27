@@ -25,12 +25,6 @@ Add the following inside `RSpec.configure` block in `spec/spec_helper.rb`:
 config.include ApiBlueprint::Collect::SpecHook
 ```
 
-And the following to `app/controllers/application_controller.rb`:
-
-```ruby
-include ApiBlueprint::Collect::ControllerHook if defined?(ApiBlueprint)
-```
-
 ## Usage
 
 **api-blueprint** consists of two modules:
@@ -102,3 +96,5 @@ Option | Description
 `html` | Target HTML file created after compilation
 `deploy` | SSH address used for documentation deployment
 `naming` | Dictionary of custom API method names
+
+First group is always a default one. You can switch any rake task to work on other group by specifying its name with `rake blueprint:collect group=other`.

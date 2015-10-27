@@ -12,14 +12,12 @@ Semi-automatic solution for creating Rails app's API documentation. Here's how i
 Add to `Gemfile`:
 
 ```ruby
-gem 'api_blueprint'
+gem 'api_blueprint', group: [:development, :test]
 ```
 
 Then run:
 
-```
-bundle install
-```
+    bundle install
 
 Add the following inside `RSpec.configure` block in `spec/spec_helper.rb`:
 
@@ -30,22 +28,59 @@ config.include ApiBlueprint::Collect::SpecHook
 And the following to `app/controllers/application_controller.rb`:
 
 ```ruby
-include Blueprint::Collect::ControllerHook
+include ApiBlueprint::Collect::ControllerHook if defined?(ApiBlueprint)
 ```
 
 ## Usage
 
-**api-blueprint** allows to run RSpec request suite in order to auto-generate API method information. In order to do that you should invoke:
+**api-blueprint** consists of two modules:
 
-```
-rake blueprint:collect
-```
+1. **Collect** module: allows to run RSpec request suite in order to auto-generate API method information.
+2. **Compile** module: allows to turn whole Markdown documentation into single, ready-to-publish HTML file.
 
-By default, all specs inside `spec/requests` are run. You can configure that by creating a [Blueprintfile](#configuration) configuration.
+### Collect
+
+In order to auto-generate API method information you should invoke:
+
+    rake blueprint:collect
+
+> By default, all specs inside `spec/requests/api` are run. You can configure that by creating a [Blueprintfile](#configuration) configuration.
+
+This will generate the `doc/api.md` file with a Markdown documentation ready to compile. If this file already exists, **api-blueprint** will not override it. It will write to `tmp/merge.md` instead so you can merge both existing and generated documentation manually in whatever way you want.
+
+Of course, it's just a starting point and you should at least fill in some resource, action and parameter descriptions. But that's a story for the **Compile** module.
+
+#### Regenerate examples
+
+You get the RSpec-based example listing for every auto-generated API method documentation. There's a chance that
+
+### Compile
+
+In order to turn your documentation into ready-to-publish HTML file you should invoke:
+
+    rake blueprint:compile
+
+This will create the final `doc/api.html`. You can deploy this file to configured SSH target with:
+
+    rake blueprint:deploy
+
+If you want to preview this file constantly when editing Markdown docs, you can do so with:
+
+    rake blueprint:watch
+
+> You should add `doc/**/*.html` to your `.gitignore` as there's no need to clutter your project history with compiled HTML that you can easily recreate on demand.
+
+#### Require another file
+
+You can split your documentation into separate files and directories in order to organize it better and reuse same fragments in multiple places. You can do that with the following Markdown:
+
+```md
+<require:fragments/deprecation_warning.md>
+```
 
 ## Configuration
 
-Configuration for **api-blueprint** lives in `Blueprintfile` inside application directory. It looks like this:
+Configuration for **api-blueprint** lives in `Blueprintfile` inside application directory. It's basically a listing of documentations governed by **api-blueprint**, each with a set of options. It looks like this:
 
 ```yaml
 api:
@@ -58,11 +93,11 @@ api:
       create: "Sign In"
 ```
 
-Here's what specific options stand for:
+Here's what specific per-documentation options stand for:
 
 Option | Description
 -------|------------
-`spec` | Rspec spec suite directory
+`spec` | RSpec spec suite directory
 `blueprint` | Main documentation file (Markdown)
 `html` | Target HTML file created after compilation
 `deploy` | SSH address used for documentation deployment

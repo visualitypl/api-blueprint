@@ -58,9 +58,9 @@ namespace :blueprint do
 
     desc 'Generate request dumps for specified request spec(s)'
     task :generate => :environment do
-      args = blueprintfile['spec'] || "spec/requests"
+      args = blueprintfile['spec'] || "spec/requests/#{ENV['group'] || 'api'}"
       opts = { :order => 'default', :format => 'documentation' }
-      cmd  = "bundle exec rspec #{opts.map{|k,v| "--#{k} #{v}"}.join(' ')} #{args}"
+      cmd  = "API_BLUEPRINT_DUMP=1 bundle exec rspec #{opts.map{|k,v| "--#{k} #{v}"}.join(' ')} #{args}"
 
       puts "Invoking '#{cmd}'..."
 

@@ -1,6 +1,6 @@
 module ApiBlueprint::Collect::ControllerHook
   def self.included(base)
-    return unless Rails.env.test?
+    return unless ENV['API_BLUEPRINT_DUMP'] == '1'
 
     base.around_filter :dump_blueprint_around
   end

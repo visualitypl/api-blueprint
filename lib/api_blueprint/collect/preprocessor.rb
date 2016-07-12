@@ -88,17 +88,26 @@ class ApiBlueprint::Collect::Preprocessor
           }
         end
       elsif value.is_a?(Array)
-        items = value.collect { |i| collect_merged_params(i) }
+        if value.first.is_a?(Hash)
+          items = value.collect { |i| collect_merged_params(i) }
+          params[param] = {
+            :type   => 'array',
+            :params => items.inject(&:merge)
+          }
 
-
-        params[param] = {
-          :type   => 'array',
-          :params => items.inject(&:merge)
-        }
+        else
+          params[param] = {
+            :type   => 'string',
+            :params => value
+          }
+        end
       else
         if value == true || value == false
           type = 'boolean'
           value = value ? 'true' : 'false'
+        elsif value.is_a?(ActionDispatch::Http::UploadedFile)
+          type = 'file'
+          value = value.original_filename
         elsif value.to_i.to_s == value
           type = 'integer'
         elsif value.to_f.to_s == value
@@ -157,7 +166,9 @@ class ApiBlueprint::Collect::Preprocessor
     request[:response_headers] = preprocess_headers({
       'Status' => request['response']['status'],
       'Content-Type' => request['response']['content_type']
-    })
+    }.merge(request['response']['headers'].slice(
+      'access-token', 'client', 'expiry', 'uid'
+    )))
 
     request[:title] = request['spec']['title_parts'][1..-1].join(' ')
     request[:title] = request[:title][0].upcase + request[:title][1..-1]

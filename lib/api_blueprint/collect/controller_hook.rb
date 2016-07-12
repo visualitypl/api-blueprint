@@ -17,14 +17,14 @@ module ApiBlueprint::Collect::ControllerHook
     end
 
     def params
-      JSON.parse(input.params.reject do |k,_|
+      input.params.reject do |k,_|
         ['action', 'controller'].include?(k)
-      end.to_json)
+      end
     end
 
     def headers
       Hash[input.headers.env.select do |k, v|
-        (k.start_with?("HTTP_X_") || k == 'ACCEPT') && v
+        (k.start_with?("HTTP_X_") || k == 'ACCEPT' || access_token_params?(k)) && v
       end.map do |k, v|
         [human_header_key(k), v]
       end]
@@ -48,6 +48,10 @@ module ApiBlueprint::Collect::ControllerHook
       key.sub("HTTP_", '').split("_").map do |x|
         x.downcase
       end.join("_")
+    end
+
+    def access_token_params?(k)
+      k.start_with?("HTTP_ACCESS_TOKEN", "HTTP_CLIENT", "HTTP_UID", "HTTP_EXPIRY")
     end
   end
 
@@ -74,7 +78,8 @@ module ApiBlueprint::Collect::ControllerHook
       'response' => {
         'status'       => response.status,
         'content_type' => response.content_type,
-        'body'         => out_parser.body
+        'body'         => out_parser.body,
+        'headers'      => response.headers
       },
       'route' => {
         'controller'   => controller_name,

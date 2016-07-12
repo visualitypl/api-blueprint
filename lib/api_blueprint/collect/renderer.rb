@@ -65,6 +65,8 @@ class ApiBlueprint::Collect::Renderer
   end
 
   def code_block(content)
+    content = JSON.pretty_generate(content) if content.kind_of?(Array)
+
     content.split("\n").collect { |line| " " * 4 + line }.join("\n") + "\n\n"
   end
 end

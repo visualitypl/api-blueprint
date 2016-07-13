@@ -17,9 +17,9 @@ module ApiBlueprint::Collect::ControllerHook
     end
 
     def params
-      JSON.parse(input.params.reject do |k,_|
+      input.params.reject do |k,_|
         ['action', 'controller'].include?(k)
-      end.to_json)
+      end
     end
 
     def headers
@@ -74,7 +74,8 @@ module ApiBlueprint::Collect::ControllerHook
       'response' => {
         'status'       => response.status,
         'content_type' => response.content_type,
-        'body'         => out_parser.body
+        'body'         => out_parser.body,
+        'headers'      => response.headers
       },
       'route' => {
         'controller'   => controller_name,

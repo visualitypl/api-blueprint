@@ -24,7 +24,7 @@ module ApiBlueprint::Collect::ControllerHook
 
     def headers
       Hash[input.headers.env.select do |k, v|
-        (k.start_with?("HTTP_X_") || k == 'ACCEPT' || access_token_params?(k)) && v
+        (k.start_with?("HTTP_X_") || k == 'ACCEPT') && v
       end.map do |k, v|
         [human_header_key(k), v]
       end]
@@ -48,10 +48,6 @@ module ApiBlueprint::Collect::ControllerHook
       key.sub("HTTP_", '').split("_").map do |x|
         x.downcase
       end.join("_")
-    end
-
-    def access_token_params?(k)
-      k.start_with?("HTTP_ACCESS_TOKEN", "HTTP_CLIENT", "HTTP_UID", "HTTP_EXPIRY")
     end
   end
 

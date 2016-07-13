@@ -166,9 +166,7 @@ class ApiBlueprint::Collect::Preprocessor
     request[:response_headers] = preprocess_headers({
       'Status' => request['response']['status'],
       'Content-Type' => request['response']['content_type']
-    }.merge(request['response']['headers'].slice(
-      'access-token', 'client', 'expiry', 'uid'
-    )))
+    })
 
     request[:title] = request['spec']['title_parts'][1..-1].join(' ')
     request[:title] = request[:title][0].upcase + request[:title][1..-1]

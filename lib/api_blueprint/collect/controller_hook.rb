@@ -17,8 +17,12 @@ module ApiBlueprint::Collect::ControllerHook
     end
 
     def params
+      # Reject action and controller params as they are internal params used by
+      # Rails. Additionally reject all params that are inside url path and not
+      # in query string
       input.params.reject do |k,_|
-        ['action', 'controller'].include?(k)
+        ['action', 'controller'].include?(k) ||
+          params_in_request_path.include?(k)
       end
     end
 
@@ -48,6 +52,19 @@ module ApiBlueprint::Collect::ControllerHook
       key.sub("HTTP_", '').split("_").map do |x|
         x.downcase
       end.join("_")
+    end
+
+    def params_in_request_path
+      required_parts = []
+
+      # Find ActionDispatch::Journey::Route object matching current route
+      Rails.application.routes.router.recognize(@input) do |route, _matches, _parameters|
+        # required_names method will return param names that are inside request
+        # path, most likely id params required for REST-like routes
+        required_parts = route.path.required_names
+      end
+
+      required_parts
     end
   end
 

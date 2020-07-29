@@ -1,3 +1,11 @@
+# Archived
+
+We have decided to terminate support for this project, as we gradually moved on to different and open solutions used world-wide such as [Swagger](https://swagger.io/). 
+This means that we no longer add new features or provide fixes to this project. 
+
+If you prefer using this, you can consider using community driven [forks](https://github.com/visualitypl/api-blueprint/network/members) of this repository.
+
+
 # api-blueprint
 
 Semi-automatic solution for creating Rails app's API documentation. Here's how it works:
